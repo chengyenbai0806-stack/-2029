@@ -64,7 +64,7 @@ export default function App() {
       address: '台北市松山区八德路300号',
       lat: 25.048,
       lng: 121.576,
-      image: 'https://cdn2.ettoday.net/images/8216/d8216578.jpg',
+      image: 'https://upload-os-bbs.hoyolab.com/upload/2025/06/30/248389732/92d9f84247386d7a108f9de33c888762_578276970928279755.gif',
        category: '蔬菜'
        },
        ]);

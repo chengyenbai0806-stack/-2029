@@ -46,14 +46,18 @@ export default function App() {
   // 3. 自動從 Supabase 抓取資料的邏輯
   useEffect(() => {
     const fetchRealData = async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('fruit') // 這裡對應你 Supabase 的資料表
         .select('*');
 
       if (error) {
         console.error('抓取雲端失敗，使用預設資料:', error);
-      } else if (data && data.length > 0) {
-        // 將 Supabase 的欄位映射到你的 FoodListing 格式 git add .
+      } else {
+        console.log('Supabase 資料:', data);
+      }
+
+      if (data && data.length > 0) {
+        // 將 Supabase 的欄位映射到你的 FoodListing 格式
         const mappedData = data.map((d: any) => ({
           id: d.id.toString(),
           title: d.名稱 || '未知產品',

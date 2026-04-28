@@ -47,16 +47,16 @@ export default function App() {
   useEffect(() => {
     const fetchRealData = async () => {
       const { data, error } = await (supabase as any)
-        .from('果果') // 這裡對應你 Supabase 的資料表
+        .from('蔬果') // 這裡對應你 Supabase 的資料表
         .select('*');
 
       if (error) {
         console.error('抓取雲端失敗，使用預設資料:', error);
       } else if (data && data.length > 0) {
-        // 將 Supabase 的欄位映射到你的 FoodListing 格式
+        // 將 Supabase 的欄位映射到你的 FoodListing 格式 git add .
         const mappedData = data.map((d: any) => ({
           id: d.id.toString(),
-          title: d.名稱 || '未命名商品',
+          title: d.名稱 || '未知產品',
           description: d.描述 || '無描述',
           originalPrice: d.原價 || 0,
           discountPrice: d.折扣後 || 0,

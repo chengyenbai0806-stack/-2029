@@ -47,7 +47,7 @@ export default function App() {
   useEffect(() => {
     const fetchRealData = async () => {
       const { data, error } = await (supabase as any)
-        .from('蔬果') // 這裡對應你 Supabase 的資料表
+        .from('fruit') // 這裡對應你 Supabase 的資料表
         .select('*');
 
       if (error) {

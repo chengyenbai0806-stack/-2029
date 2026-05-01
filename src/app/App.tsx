@@ -51,23 +51,32 @@ export default function App() {
 
   // --- 步驟 3: 把這些功能寫在 useEffect 外面 (解決 Scope 問題) ---
   const addListing = async (newListing: Omit<FoodListing, 'id'>) => {
-    const { error } = await supabase.from('fruit').insert([{
-      名稱: newListing.title,
-      描述: newListing.description,
-      原價: newListing.originalPrice,
-      折扣後: newListing.discountPrice,
-      數量: newListing.quantity,
-      到期日: newListing.expiryDate,
-      商家名稱: newListing.storeName,
-      地址: newListing.address,
-      lat: newListing.lat,
-      lng: newListing.lng,
-      圖片網址: newListing.image,
-      分類: newListing.category
-    }]);
-    if (error) console.error(error);
-    else window.location.reload();
-  };
+  // 強制轉換型別，確保傳給 Supabase 的是數字而非字串
+  const { error } = await supabase.from('fruit').insert([{
+    名稱: newListing.title,
+    描述: newListing.description,
+    // 使用 Number() 確保型別正確，避免 bigint 或 float 報錯
+    原價: Number(newListing.originalPrice) || 0, 
+    折扣後: Number(newListing.discountPrice) || 0,
+    數量: Number(newListing.quantity) || 1,
+    到期日: newListing.expiryDate,
+    商家名稱: newListing.storeName,
+    地址: newListing.address,
+    // 經緯度一定要是數字，否則地圖會壞掉
+    lat: Number(newListing.lat) || 23.700,
+    lng: Number(newListing.lng) || 120.430,
+    圖片網址: newListing.image,
+    分類: newListing.category
+  }]);
+
+  if (error) {
+    console.error("新增失敗，請檢查 Supabase 欄位名稱是否正確:", error.message);
+    alert("新增失敗：" + error.message);
+  } else {
+    console.log("新增成功！");
+    window.location.reload();
+  }
+};
 
   const updateListing = async (id: string, updates: Partial<FoodListing>) => {
     const { error } = await supabase.from('fruit').update({

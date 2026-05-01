@@ -81,17 +81,19 @@ setListings(mappedData);
 };
 
   const updateListing = async (id: string, updates: Partial<FoodListing>) => {
-    const { error } = await supabase.from('fruit').update({
-      名稱: updates.title,
-      描述: updates.description,
-      原價: updates.originalPrice,
-      折扣後: updates.discountPrice,
-      庫存: updates.quantity,
-      地址: updates.address,
-      到期日: updates.expiryDate
-    }).eq('id', id);
-    if (error) console.error(error);
-    else window.location.reload();
+    console.log("👉 偵測到點擊！正在處理 ID:", id);
+  console.log("👉 準備更新的內容:", updates);
+   // const { error } = await supabase.from('fruit').update({
+   //   名稱: updates.title,
+   //   描述: updates.description,
+     // 原價: updates.originalPrice,
+      //折扣後: updates.discountPrice,
+      //庫存: updates.quantity,
+     // 地址: updates.address,
+     // 到期日: updates.expiryDate
+    //}).eq('id', id);
+   // if (error) console.error(error);
+    //else window.location.reload();
   };
 
   const deleteListing = async (id: string) => {

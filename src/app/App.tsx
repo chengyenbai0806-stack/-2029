@@ -28,21 +28,24 @@ export default function App() {
     const fetchRealData = async () => {
       const { data, error } = await supabase.from('fruit').select('*');
       if (data) {
-        const mappedData = data.map((d: any) => ({
-          id: d.id.toString(),
-          title: d.名稱 || '未知產品',
-          description: d.描述 || '無描述',
-          originalPrice: d.原價 || 0,
-          discountPrice: d.折扣後 || 0,
-          quantity: d.數量 || 1,
-          expiryDate: d.到期日 || '',
-          storeName: d.商家名稱 || '未知商家',
-          address: d.地址 || '',
-          lat: parseFloat(d.lat) || 23.700,
-          lng: parseFloat(d.lng) || 120.430,
-          image: d.圖片網址 || 'https://via.placeholder.com/150',
-          category: d.分類 || '未分類'
-        }));
+       const mappedData = data.map((d: any) => ({
+  id: d.id.toString(),
+  title: d.名稱 || '未知產品',
+  // --- 資料庫沒有以下欄位，請改用固定字串 (預設值)，不要用 d.xxx ---
+  description: '暫無描述', 
+  category: '未分類',
+  image: 'https://via.placeholder.com/150',
+  expiryDate: '無限期',
+  // -----------------------------------------------------------
+  originalPrice: d.原價 || 0,
+  discountPrice: d.折扣後 || 0,
+  quantity: d.庫存 || 0,       // 修正：資料庫欄位名稱是「庫存」
+  storeName: d.商家名稱 || '未知商家',
+  address: d.地址 || '',
+  lat: parseFloat(d.lat) || 23.700, // 對應資料庫 lat
+  lng: parseFloat(d.lng) || 120.430  // 對應資料庫 lng
+}));
+setListings(mappedData);
         setListings(mappedData);
       }
     };

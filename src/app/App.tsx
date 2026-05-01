@@ -81,26 +81,55 @@ setListings(mappedData);
 };
 
   const updateListing = async (id: string, updates: Partial<FoodListing>) => {
-    console.log("👉 偵測到點擊！正在處理 ID:", id);
+   
+  console.log("👉 偵測到點擊！正在處理 ID:", id);
   console.log("👉 準備更新的內容:", updates);
-   // const { error } = await supabase.from('fruit').update({
-   //   名稱: updates.title,
-   //   描述: updates.description,
-     // 原價: updates.originalPrice,
-      //折扣後: updates.discountPrice,
-      //庫存: updates.quantity,
-     // 地址: updates.address,
-     // 到期日: updates.expiryDate
-    //}).eq('id', id);
-   // if (error) console.error(error);
-    //else window.location.reload();
-  };
 
-  const deleteListing = async (id: string) => {
-    const { error } = await supabase.from('fruit').delete().eq('id', id);
-    if (error) console.error(error);
-    else window.location.reload();
-  };
+  // 核心修正：將英文變數「翻譯」成資料庫的中文欄位
+  const { data, error } = await supabase
+    .from('fruit')
+    .update({
+      名稱: updates.title,           // title -> 名稱
+      描述: updates.description,     // description -> 描述
+      分類: updates.category,        // category -> 分類
+      圖片網址: updates.image,        // image -> 圖片網址
+      到期日: updates.expiryDate,    // expiryDate -> 到期日
+      原價: Number(updates.originalPrice),   // originalPrice -> 原價
+      折扣後: Number(updates.discountPrice), // discountPrice -> 折扣後
+      庫存: Number(updates.quantity),       // quantity -> 庫存 (這點最重要！)
+      地址: updates.address,         // address -> 地址
+      // 如果有需要更新經緯度或商家名稱也可以補上
+    })
+    .eq('id', id)
+    .select();
+
+  if (error) {
+    console.error("❌ 更新失敗：", error.message);
+    alert("更新失敗：" + error.message);
+  } else {
+    console.log("✅ 更新成功，回傳結果：", data);
+    alert("修改成功！");
+    window.location.reload(); // 成功後重新整理畫面
+  }
+};
+const deleteListing = async (id: string) => {
+  // 確認是否要刪除
+  if (!window.confirm("確定要刪除這筆資料嗎？")) return;
+
+  const { error } = await supabase
+    .from('fruit')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error("刪除失敗：", error.message);
+    alert("刪除失敗：" + error.message);
+  } else {
+    alert("刪除成功！");
+    // 重新整理畫面
+    window.location.reload();
+  }
+};
 
   // 5. 畫面切換邏輯 (修正語法與傳遞 Props)
   if (view === 'buyer') {

@@ -82,34 +82,42 @@ setListings(mappedData);
 
   const updateListing = async (id: string, updates: Partial<FoodListing>) => {
    
-  console.log("👉 偵測到點擊！正在處理 ID:", id);
-  console.log("👉 準備更新的內容:", updates);
+  console.log("1. 進入函式，ID 為:", id);
+  
+  // 檢查資料型別是否正確
+  const payload = {
+    名稱: updates.title,
+    描述: updates.description,
+    分類: updates.category,
+    圖片網址: updates.image,
+    到期日: updates.expiryDate,
+    原價: Number(updates.originalPrice),
+    折扣後: Number(updates.discountPrice),
+    庫存: Number(updates.quantity), // 確保這兩個字是「庫存」
+    地址: updates.address
+  };
+  
+  console.log("2. 準備送出的資料 (Payload):", payload);
 
-  // 核心修正：將英文變數「翻譯」成資料庫的中文欄位
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from('fruit')
-    .update({
-      名稱: updates.title,           // title -> 名稱
-      描述: updates.description,     // description -> 描述
-      分類: updates.category,        // category -> 分類
-      圖片網址: updates.image,        // image -> 圖片網址
-      到期日: updates.expiryDate,    // expiryDate -> 到期日
-      原價: Number(updates.originalPrice),   // originalPrice -> 原價
-      折扣後: Number(updates.discountPrice), // discountPrice -> 折扣後
-      庫存: Number(updates.quantity),       // quantity -> 庫存 (這點最重要！)
-      地址: updates.address,         // address -> 地址
-      // 如果有需要更新經緯度或商家名稱也可以補上
-    })
+    .update(payload)
     .eq('id', id)
     .select();
 
   if (error) {
-    console.error("❌ 更新失敗：", error.message);
-    alert("更新失敗：" + error.message);
+    // 💡 如果這行跑出來，會直接告訴你是欄位錯、權限錯、還是型別錯
+    console.error("3. ❌ Supabase 報錯了！狀態碼:", status);
+    console.error("錯誤訊息:", error.message);
+    alert("更新失敗: " + error.message);
+  } else if (data && data.length === 0) {
+    // 💡 如果沒報錯但 data 是空的，代表沒找到這筆 ID
+    console.warn("3. ⚠️ 沒報錯，但沒有任何資料被更新。請檢查 ID 是否正確。");
+    alert("找不到該筆資料，無法更新。");
   } else {
-    console.log("✅ 更新成功，回傳結果：", data);
+    console.log("3. ✅ 更新成功！回傳資料:", data);
     alert("修改成功！");
-    window.location.reload(); // 成功後重新整理畫面
+    window.location.reload(); 
   }
 };
 const deleteListing = async (id: string) => {

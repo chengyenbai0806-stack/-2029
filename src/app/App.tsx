@@ -33,7 +33,7 @@ export default function App() {
   title: d.名稱 || '未知產品',
   description: d.描述 || '無描述',     
   category: d.分類 || '未分類',       
-   image: d.圖片網址 || 'https://via.placeholder.com/150', 
+  image: d.圖片網址 || 'https://via.placeholder.com/150', 
   expiryDate: d.到期日 || '無限期',  
   
   originalPrice: d.原價 || 0,
@@ -86,7 +86,7 @@ setListings(mappedData);
       描述: updates.description,
       原價: updates.originalPrice,
       折扣後: updates.discountPrice,
-      數量: updates.quantity,
+      庫存: updates.quantity,
       地址: updates.address,
       到期日: updates.expiryDate
     }).eq('id', id);

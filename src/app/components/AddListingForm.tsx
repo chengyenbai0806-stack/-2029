@@ -6,9 +6,10 @@ type AddListingFormProps = {
   onSubmit: (listing: Omit<FoodListing, 'id'>) => void;
   onCancel: () => void;
   initialData?: FoodListing;
+  isLoaded: boolean;
 };
 
-export function AddListingForm({ onSubmit, onCancel, initialData }: AddListingFormProps) {
+export function AddListingForm({ onSubmit, onCancel, initialData, isLoaded }: AddListingFormProps) {
   const [formData, setFormData] = useState({
     title: initialData?.title || '',
     description: initialData?.description || '',

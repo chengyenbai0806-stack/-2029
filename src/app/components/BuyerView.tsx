@@ -7,9 +7,10 @@ import { MapView } from './MapView';
 type BuyerViewProps = {
   listings: FoodListing[];
   onBack: () => void;
+  isLoaded: boolean;
 };
 
-export function BuyerView({ listings, onBack }: BuyerViewProps) {
+export function BuyerView({ listings, onBack, isLoaded }: BuyerViewProps){
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('全部');
@@ -96,7 +97,7 @@ export function BuyerView({ listings, onBack }: BuyerViewProps) {
             )}
           </div>
         ) : (
-          <MapView listings={filteredListings} />
+          <MapView listings={filteredListings} isLoaded={isLoaded} />
         )}
       </main>
     </div>

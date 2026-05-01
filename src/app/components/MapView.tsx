@@ -3,9 +3,10 @@ import type { FoodListing } from '../App';
 
 type MapViewProps = {
   listings: FoodListing[];
+  isLoaded: boolean;
 };
 
-export function MapView({ listings }: MapViewProps) {
+export function MapView({ listings, isLoaded }: MapViewProps) {
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden">
       <div className="relative h-[600px] bg-gradient-to-br from-blue-100 to-green-100">

@@ -102,7 +102,7 @@ setListings(mappedData);
   const { data, error, status } = await supabase
     .from('fruit')
     .update(payload)
-    .eq('id', String(id))
+    .eq('id', id)
     .select();
 
   if (error) {
@@ -127,7 +127,7 @@ const deleteListing = async (id: string) => {
   const { error } = await supabase
     .from('fruit')
     .delete()
-    .eq('id', String(id))
+    .eq('id', id)
 
   if (error) {
     console.error("刪除失敗：", error.message);

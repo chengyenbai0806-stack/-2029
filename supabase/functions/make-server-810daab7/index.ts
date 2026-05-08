@@ -1,37 +1,34 @@
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { Hono } from "npm:hono";
 import { cors } from "npm:hono/cors";
-import * as kv from "./kv_store.tsx";
 
 const app = new Hono().basePath('/make-server-810daab7');
+app.use('*', cors({ origin: '*' }));
 
-// 處理 CORS，這能解決連線逾時問題
-app.use('*', cors({
-  origin: '*',
-  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowHeaders: ['Content-Type', 'Authorization', 'apikey'],
-}));
+const supabase = createClient(
+  Deno.env.get('SUPABASE_URL') ?? '',
+  Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+)
 
-// 獲取清單
 app.get("/listings", async (c) => {
-  try {
-    const data = await kv.getByPrefix("listing:");
-    return c.json({ listings: data || [] });
-  } catch (err) {
-    return c.json({ error: err.message }, 500);
-  }
-});
+  const { data, error } = await supabase
+    .from('fruit')
+    .select('*');
 
-// 新增清單
-app.post("/listings", async (c) => {
-  try {
-    const body = await c.req.json();
-    const id = body.id || `listing:${Date.now()}`;
-    const item = { ...body, id };
-    await kv.set(id, item);
-    return c.json({ listing: item }, 201);
-  } catch (err) {
-    return c.json({ error: err.message }, 500);
-  }
+  if (error) return c.json({ error: error.message }, 500);
+
+  // 重點：把中文欄位轉換成前端認識的英文
+  const formattedData = data.map(item => ({
+    id: item.id,
+    title: item.名稱,      // 把「名稱」轉成 title
+    originalPrice: item.原價, // 把「原價」轉成 originalPrice
+    price: item.折扣後,     // 把「折扣後」轉成 price
+    stock: item.庫存,      // 把「庫存」轉成 stock
+    location: item.商家名稱, // 把「商家名稱」轉成 location
+    image: item.image || "https://placehold.co/600x400?text=Food" // 預防圖片缺失
+  }));
+
+  return c.json({ listings: formattedData });
 });
 
 Deno.serve(app.fetch);

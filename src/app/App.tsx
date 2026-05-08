@@ -30,70 +30,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Sample data for initial setup
-  const sampleListings: FoodListing[] = [
-    {
-      id: '1',
-      title: '新鲜面包',
-      description: '当天制作的面包，即将过期优惠出售',
-      originalPrice: 30,
-      discountPrice: 10,
-      quantity: 5,
-      expiryDate: '2026-04-25',
-      storeName: '阳光面包店',
-      address: '台北市大安区信义路100号',
-      lat: 25.033,
-      lng: 121.565,
-      image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400',
-      category: '面包糕点'
-    },
-    {
-      id: '2',
-      title: '有机蔬菜组合',
-      description: '新鲜有机蔬菜，今日特价',
-      originalPrice: 150,
-      discountPrice: 80,
-      quantity: 3,
-      expiryDate: '2026-04-24',
-      storeName: '绿色超市',
-      address: '台北市中山区南京东路200号',
-      lat: 25.052,
-      lng: 121.544,
-      image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400',
-      category: '蔬菜水果'
-    },
-    {
-      id: '3',
-      title: '便当特价',
-      description: '午餐时段剩余便当，健康美味',
-      originalPrice: 120,
-      discountPrice: 60,
-      quantity: 8,
-      expiryDate: '2026-04-24',
-      storeName: '美味便当',
-      address: '台北市松山区八德路300号',
-      lat: 25.048,
-      lng: 121.576,
-      image: 'https://images.unsplash.com/photo-1576328077645-2dd68934d2b7?w=400',
-      category: '即食餐点'
-    },
-    {
-      id: '4',
-      title: '北欧风书架',
-      description: '展示样品书架，九成新，清仓优惠',
-      originalPrice: 3500,
-      discountPrice: 1200,
-      quantity: 2,
-      expiryDate: '2026-05-30',
-      storeName: '居家生活馆',
-      address: '台北市内湖区民权东路500号',
-      lat: 25.068,
-      lng: 121.567,
-      image: 'https://images.unsplash.com/photo-1594620302200-9a762244a156?w=400',
-      category: '家具'
-    }
-  ];
-
+  // 初始化時只從雲端抓取資料
   useEffect(() => {
     loadListings();
   }, []);
@@ -103,79 +40,94 @@ export default function App() {
       setLoading(true);
       setError(null);
 
-      // --- 優化點 1：防止 API 永久卡死，設定 3 秒逾時 ---
+      // 設定 5 秒逾時，避免無限轉圈
       const timeout = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout')), 3000)
+        setTimeout(() => reject(new Error('連線逾時，請檢查 Supabase Edge Functions 是否正常')), 5000)
       );
 
+      // 直接呼叫 api.getListings()，這會去敲你的 Supabase 網址
       const fetchPromise = api.getListings();
-      
-      // 誰快聽誰的，如果 API 超過 3 秒沒回應，直接進 catch
       const data = await Promise.race([fetchPromise, timeout]) as FoodListing[];
 
-      if (!data || data.length === 0) {
-        console.log('資料庫為空，顯示範例數據並同步...');
-        setListings(sampleListings);
-        
-        // --- 優化點 2：背景同步不使用 await，避免阻礙 loading 狀態關閉 ---
-        sampleListings.forEach(l => {
-          api.createListing(l).catch(e => console.error("背景初始化失敗:", e));
-        });
-      } else {
-        setListings(data);
-      }
+      // 同步到畫面上
+      setListings(data || []);
     } catch (err) {
-      console.error('資料載入發生問題，改用本地數據:', err);
-      setListings(sampleListings);
+      console.error('雲端資料加載失敗:', err);
+      // 這裡不再切換到 sampleListings，而是顯示錯誤
+      setError(err instanceof Error ? err.message : '連線失敗');
     } finally {
-      // --- 優化點 3：確保最後一定會關閉加載畫面 ---
       setLoading(false);
     }
   };
 
   const addListing = async (listing: Omit<FoodListing, 'id'>) => {
     try {
+      // 1. 發送到後端，這會觸發你 index.ts 裡的 app.post("/listings")
       const newListing = await api.createListing(listing);
-      setListings([newListing, ...listings]);
+      
+      // 2. 後端成功存入 KV 後，前端才同步更新列表
+      setListings(prev => [newListing, ...prev]);
+      alert('商品已成功同步至雲端發布！');
     } catch (err) {
-      console.error('Error creating listing:', err);
-      alert('创建商品失败，请稍后重試');
+      console.error('發布失敗:', err);
+      alert('發布失敗，請確認網路連線與 API Key 設定');
     }
   };
 
   const updateListing = async (id: string, updates: Partial<FoodListing>) => {
     try {
       await api.updateListing(id, updates);
-      setListings(listings.map(listing =>
+      setListings(prev => prev.map(listing =>
         listing.id === id ? { ...listing, ...updates } : listing
       ));
     } catch (err) {
-      console.error('Error updating listing:', err);
-      alert('更新商品失败，请稍后重試');
+      console.error('更新失敗:', err);
+      alert('雲端更新失敗');
     }
   };
 
   const deleteListing = async (id: string) => {
     try {
       await api.deleteListing(id);
-      setListings(listings.filter(listing => listing.id !== id));
+      setListings(prev => prev.filter(listing => listing.id !== id));
     } catch (err) {
-      console.error('Error deleting listing:', err);
-      alert('删除商品失败，请稍后重試');
+      console.error('刪除失敗:', err);
+      alert('無法從雲端刪除此商品');
     }
   };
 
+  // 載入中畫面
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="text-4xl mb-4">🌱</div>
-          <p className="text-gray-600">加载中...</p>
+          <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600 font-medium">連線至雲端資料庫...</p>
         </div>
       </div>
     );
   }
 
+  // 錯誤處理畫面
+  if (error && listings.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-red-50 p-4">
+        <div className="text-center max-w-md">
+          <div className="text-4xl mb-4">⚠️</div>
+          <h2 className="text-xl font-bold text-red-700 mb-2">無法載入雲端資料</h2>
+          <p className="text-red-600 mb-6">{error}</p>
+          <button 
+            onClick={loadListings}
+            className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors"
+          >
+            重新連線
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 視圖切換
   if (view === 'buyer') {
     return <BuyerView listings={listings} onBack={() => setView('main')} />;
   }
@@ -193,7 +145,7 @@ export default function App() {
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-gray-50 pb-20">
       {currentTab === 'home' && (
         <HomePage
           onSelectBuyer={() => setView('buyer')}
@@ -204,6 +156,6 @@ export default function App() {
       {currentTab === 'profile' && <ProfilePage />}
 
       <BottomNav currentTab={currentTab} onTabChange={setCurrentTab} />
-    </>
+    </div>
   );
 }

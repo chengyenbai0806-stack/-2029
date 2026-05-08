@@ -9,10 +9,9 @@ type SellerViewProps = {
   onAddListing: (listing: Omit<FoodListing, 'id'>) => void;
   onUpdateListing: (id: string, updates: Partial<FoodListing>) => void;
   onDeleteListing: (id: string) => void;
-  isLoaded: boolean;
 };
 
-export function SellerView({ listings, onBack, onAddListing, onUpdateListing, onDeleteListing, isLoaded }: SellerViewProps){
+export function SellerView({ listings, onBack, onAddListing, onUpdateListing, onDeleteListing }: SellerViewProps) {
   const [showForm, setShowForm] = useState(false);
   const [editingListing, setEditingListing] = useState<FoodListing | null>(null);
 
@@ -42,7 +41,6 @@ export function SellerView({ listings, onBack, onAddListing, onUpdateListing, on
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         initialData={editingListing || undefined}
-        isLoaded={isLoaded}
       />
     );
   }

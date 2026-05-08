@@ -6,10 +6,9 @@ type AddListingFormProps = {
   onSubmit: (listing: Omit<FoodListing, 'id'>) => void;
   onCancel: () => void;
   initialData?: FoodListing;
-  isLoaded: boolean;
 };
 
-export function AddListingForm({ onSubmit, onCancel, initialData, isLoaded }: AddListingFormProps) {
+export function AddListingForm({ onSubmit, onCancel, initialData }: AddListingFormProps) {
   const [formData, setFormData] = useState({
     title: initialData?.title || '',
     description: initialData?.description || '',
@@ -25,7 +24,7 @@ export function AddListingForm({ onSubmit, onCancel, initialData, isLoaded }: Ad
     category: initialData?.category || '其他'
   });
 
-  const categories = ['面包糕点', '蔬菜水果', '即食餐点', '乳制品', '其他'];
+  const categories = ['面包糕点', '蔬菜水果', '即食餐点', '乳制品', '家具', '其他'];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

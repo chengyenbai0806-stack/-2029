@@ -2,20 +2,19 @@ import { useState } from 'react';
 import { ArrowLeft, MapPin, List, Search, Filter } from 'lucide-react';
 import type { FoodListing } from '../App';
 import { FoodCard } from './FoodCard';
-import { MapView } from './MapView';
+import { GoogleMapView } from './GoogleMapView';
 
 type BuyerViewProps = {
   listings: FoodListing[];
   onBack: () => void;
-  isLoaded: boolean;
 };
 
-export function BuyerView({ listings, onBack, isLoaded }: BuyerViewProps){
+export function BuyerView({ listings, onBack }: BuyerViewProps) {
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('全部');
 
-  const categories = ['全部', '面包糕点', '蔬菜水果', '即食餐点', '乳制品', '其他'];
+  const categories = ['全部', '面包糕点', '蔬菜水果', '即食餐点', '乳制品', '家具', '其他'];
 
   const filteredListings = listings.filter(listing => {
     const matchesSearch = listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -97,7 +96,7 @@ export function BuyerView({ listings, onBack, isLoaded }: BuyerViewProps){
             )}
           </div>
         ) : (
-          <MapView listings={filteredListings} isLoaded={isLoaded} />
+          <GoogleMapView listings={filteredListings} />
         )}
       </main>
     </div>

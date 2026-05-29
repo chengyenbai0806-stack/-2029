@@ -94,7 +94,7 @@ export function SellerView({ listings, onBack, onAddListing, onUpdateListing, on
                     <div className="flex items-start justify-between mb-2">
                       <div>
                         <h3 className="text-xl mb-1">{listing.title}</h3>
-                        <p className="text-gray-600 text-sm">{listing.storeName}</p>
+                        <p className="text-gray-600 text-sm">{listing.store_name}</p>
                       </div>
                       <div className="flex gap-2">
                         <button
@@ -119,15 +119,15 @@ export function SellerView({ listings, onBack, onAddListing, onUpdateListing, on
                     <div className="flex flex-wrap gap-4 text-sm">
                       <div>
                         <span className="text-gray-500">原价：</span>
-                        <span className="line-through text-gray-400">NT${listing.originalPrice}</span>
+                        <span className="line-through text-gray-400">NT${listing.original_price}</span>
                       </div>
                       <div>
                         <span className="text-gray-500">特价：</span>
-                        <span className="text-green-600 font-semibold">NT${listing.discountPrice}</span>
+                        <span className="text-green-600 font-semibold">NT${listing.discounted_price}</span>
                       </div>
                       <div>
                         <span className="text-gray-500">库存：</span>
-                        <span>{listing.quantity} 份</span>
+                        <span>{listing.stock} 份</span>
                       </div>
                       <div>
                         <span className="text-gray-500">有效期至：</span>
